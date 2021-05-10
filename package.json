@@ -23,6 +23,7 @@
   "eslintConfig": {
     "root": true,
     "env": {
+      "browser": true,
       "node": true
     },
     "extends": [
@@ -30,7 +31,8 @@
       "eslint:recommended"
     ],
     "parserOptions": {
-      "parser": "babel-eslint"
+      "parser": "babel-eslint",
+      "ecmaVersion": 2020
     },
     "rules": {}
   },
