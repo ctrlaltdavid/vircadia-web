@@ -246,7 +246,7 @@ export class DomainController extends ScriptComponent {
     private _handleOnEntityAdded(entity : IEntity) {
         Log.debug(Log.types.ENTITIES,
             `Add entity ${entity.id}
-            name:${entity.name as string}
+            name: ${entity.name as string}
             type: ${entity.type}`);
 
         this._vscene?.loadEntity(entity);
@@ -255,7 +255,7 @@ export class DomainController extends ScriptComponent {
     private _handleOnEntityRemoved(entity : IEntity) {
         Log.debug(Log.types.ENTITIES,
             `Remove entity ${entity.id}
-            name:${entity.name as string}
+            name: ${entity.name as string}
             type: ${entity.type}`);
 
         this._vscene?.removeEntity(entity.id);
