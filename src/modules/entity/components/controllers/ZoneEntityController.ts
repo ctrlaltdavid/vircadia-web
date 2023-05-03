@@ -15,6 +15,7 @@
 
 // General Modules
 import Log from "@Modules/debugging/log";
+import { Renderer } from "@Modules/scene";
 // Domain Modules
 import { EntityController } from "./EntityController";
 import { IZoneEntity } from "../../EntityInterfaces";
@@ -198,6 +199,10 @@ export class ZoneEntityController extends EntityController {
             this._keyLight.enable = true;
         } else if (this._keyLight) {
             this._keyLight.enable = false;
+        }
+        if (this._keyLight && this._keyLight.gameObject && this._keyLight.node) {
+            const vscene = Renderer.getScene();
+            vscene.handleDirectionalLightShadows(this._keyLight.gameObject.id, this._keyLight.node);
         }
     }
 

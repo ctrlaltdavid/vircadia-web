@@ -47,6 +47,7 @@ export class ShapeComponent extends MeshComponent {
             mesh.isPickable = false;
             mesh.checkCollisions = false;
             mesh.renderingGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
+            mesh.receiveShadows = true;
 
             this.mesh = mesh;
             if (entity.visible !== undefined) {

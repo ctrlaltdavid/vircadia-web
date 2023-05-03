@@ -10,6 +10,7 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 //
 import Log from "@Modules/debugging/log";
+import { Renderer } from "@Modules/scene";
 
 import { EntityController } from "./EntityController";
 import { IShapeEntity } from "../../EntityInterfaces";
@@ -46,6 +47,17 @@ export class ShapeEntityController extends EntityController {
 
         this._shapeEntity.onShapeChanged?.add(() => {
             this._shapeComponent?.updateShape(this._shapeEntity);
+            if (this._shapeComponent) {
+                const vscene = Renderer.getScene();
+                vscene.handleShapeComponentShadows(this._shapeComponent, this._shapeEntity.canCastShadow ?? false);
+            }
+        });
+
+        this._shapeEntity.onCommonPropertiesChanged?.add(() => {
+            if (this._shapeComponent) {
+                const vscene = Renderer.getScene();
+                vscene.handleShapeComponentShadows(this._shapeComponent, this._shapeEntity.canCastShadow ?? false);
+            }
         });
 
         this._shapeEntity.onColorChanged?.add(() => {
@@ -64,6 +76,10 @@ export class ShapeEntityController extends EntityController {
     public onStart(): void {
         this._shapeComponent?.load(this._shapeEntity);
         super.onStart();
+        if (this._shapeComponent) {
+            const vscene = Renderer.getScene();
+            vscene.handleShapeComponentShadows(this._shapeComponent, this._shapeEntity.canCastShadow ?? false);
+        }
     }
 
 }

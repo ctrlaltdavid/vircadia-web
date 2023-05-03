@@ -15,7 +15,8 @@
 
 import { AnimationGroup, Engine, Scene, Color3,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, Camera,
-    Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, Color4, DefaultRenderingPipeline } from "@babylonjs/core";
+    Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, Color4, DefaultRenderingPipeline, ShadowGenerator,
+    AbstractMesh, DirectionalLight } from "@babylonjs/core";
 
 import "@babylonjs/loaders/glTF";
 import { ResourceManager } from "./resource";
@@ -25,6 +26,7 @@ import { GameObject, MeshComponent, CapsuleColliderComponent,
 import { ScriptComponent, requireScript, requireScripts, reattachScript } from "@Modules/script";
 import { InputController, MyAvatarController, ScriptAvatarController, AvatarMapper } from "@Modules/avatar";
 import { IEntity, IEntityDescription, EntityBuilder, EntityEvent } from "@Modules/entity";
+import { ShapeComponent } from "@Modules/entity/components/components";
 import { NametagEntity } from "@Modules/entity/entities";
 import { ScriptAvatar, Uuid } from "@vircadia/web-sdk";
 import { Utility } from "@Modules/utility";
@@ -67,6 +69,9 @@ export class VScene {
     _currentSceneURL = "";
     private _onMyAvatarModelChangedObservable: Observable<GameObject> = new Observable<GameObject>();
     private _onEntityEventObservable: Observable<EntityEvent> = new Observable<EntityEvent>();
+    private _shadowGenerators: Map<string, ShadowGenerator> = new Map();
+    private _shadowCasters: Map<string, AbstractMesh> = new Map();
+
 
     constructor(pEngine: Engine, pSceneId = 0) {
         if (process.env.NODE_ENV === "development") {
@@ -281,6 +286,69 @@ export class VScene {
 
         Log.info(Log.types.ENTITIES, "Load Entities done.");
     }
+
+
+    // Adds and removes shadow generators per new and modified DirectionalLight.
+    public handleDirectionalLightShadows(id: string, light: DirectionalLight): void {
+        if (light.shadowEnabled && !this._shadowGenerators.has(id)) {
+            // Add a new shadow generator.
+            const shadowGenerator = new ShadowGenerator(1024, light);
+            this._shadowGenerators.set(id, shadowGenerator);
+            for (const [casterID, shadowCaster] of this._shadowCasters) {
+                shadowGenerator.addShadowCaster(shadowCaster, true);
+            }
+        } else if (!light.shadowEnabled && this._shadowGenerators.has(id)) {
+            // Remove an existing shadow generator.
+            const shadowGenerator = this._shadowGenerators.get(id) as ShadowGenerator;
+            for (const shadowCaster of this._shadowCasters.values()) {
+                shadowGenerator.removeShadowCaster(shadowCaster);
+            }
+            shadowGenerator.dispose();
+            // eslint-disable-next-line @typescript-eslint/dot-notation
+            this._shadowGenerators.delete(id);
+        }
+    }
+
+    // TODO
+    // public deleteDirectionalLightShadows(id: string): void
+
+    // Adds and removes shadow casters per new and modified ShapeComponent.
+    public handleShapeComponentShadows(shapeComponent: ShapeComponent, canCastShadow: boolean): void {
+        const id = shapeComponent.gameObject?.id;
+        if (id) {
+
+            // If shadow casters already contains the shape component.
+            if (this._shadowCasters.has(id)) {
+                // If don't cast shadows or the shadow caster is different from the old one.
+                const shadowCaster = shapeComponent.mesh;
+                const oldShadowCaster = this._shadowCasters.get(id) as AbstractMesh;
+                if (!canCastShadow || oldShadowCaster.uniqueId !== shadowCaster?.uniqueId) {
+                    // Remove the old shadow caster from the shadow generators.
+                    for (const shadowGenerator of this._shadowGenerators.values()) {
+                        shadowGenerator.removeShadowCaster(oldShadowCaster);
+                    }
+                    // eslint-disable-next-line @typescript-eslint/dot-notation
+                    this._shadowCasters.delete(id);
+                }
+            }
+
+            // If do cast shadows and the shadow caster is not already known.
+            if (canCastShadow && !this._shadowCasters.has(id)) {
+                const shadowCaster = shapeComponent.mesh;
+                if (shadowCaster) {
+                    // Add the new shadow caster to the shadow generators.
+                    this._shadowCasters.set(id, shadowCaster);
+                    for (const shadowGenerator of this._shadowGenerators.values()) {
+                        shadowGenerator.addShadowCaster(shadowCaster, true);
+                    }
+                }
+            }
+        }
+    }
+
+    // TODO
+    // public deleteShapeComponentShadows(id: string): void
+
 
     /**
      * Load an avatar model for the current player.
