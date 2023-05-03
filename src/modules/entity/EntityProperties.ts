@@ -164,7 +164,6 @@ export interface IPhysicsProperties {
 
 export interface IBehaviorProperties extends ICollisionProperties, IPhysicsProperties {
     grab?: IGrabProperty;
-    canCastShadow?: boolean;
 }
 
 export interface IShapeProperties {
@@ -235,6 +234,7 @@ export interface IEntityProperties {
     renderLayer?: string | undefined;
     primitiveMode?: string | undefined;
     visible: boolean | undefined;
+    canCastShadow: boolean | undefined;
     script: string | undefined;
     userData: string | undefined;
 }

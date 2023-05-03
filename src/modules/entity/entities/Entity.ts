@@ -41,6 +41,7 @@ export abstract class Entity implements IEntity {
     protected _name: string | undefined;
     protected _parentID: string | undefined;
     protected _visible: boolean | undefined;
+    protected _canCastShadow: boolean | undefined;
     protected _position: IVector3Property | undefined;
     protected _rotation: IQuaternionProperty | undefined;
     protected _dimensions: IVector3Property | undefined;
@@ -136,6 +137,17 @@ export abstract class Entity implements IEntity {
     public set visible(value: boolean | undefined) {
         if (value !== undefined && value !== this._visible) {
             this._visible = value;
+            this._onCommonPropertiesChanged.isDirty = true;
+        }
+    }
+
+    public get canCastShadow(): boolean | undefined {
+        return this._canCastShadow;
+    }
+
+    public set canCastShadow(value: boolean | undefined) {
+        if (value !== undefined && value !== this._canCastShadow) {
+            this._canCastShadow = value;
             this._onCommonPropertiesChanged.isDirty = true;
         }
     }
@@ -387,6 +399,7 @@ export abstract class Entity implements IEntity {
         this.dimensions = props.dimensions;
         this.parentID = props.parentID?.stringify();
         this.visible = props.visible;
+        this.canCastShadow = props.canCastShadow;
         // render mode properties
         this.billboardMode = EntityMapper.mapToEntityBillboardMode(props.billboardMode);
         // script properties
