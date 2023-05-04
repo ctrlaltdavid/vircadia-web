@@ -45,8 +45,7 @@ export class ShapeEntityController extends EntityController {
         this._shapeComponent = new ShapeComponent();
         this._gameObject?.addComponent(this._shapeComponent);
 
-        this._shapeEntity.onShapeChanged?.add(() => {
-            this._shapeComponent?.updateShape(this._shapeEntity);
+        this._shapeComponent.onLoadedObservable.add(() => {
             if (this._shapeComponent) {
                 const vscene = Renderer.getScene();
                 vscene.handleShapeComponentShadows(this._shapeComponent, this._shapeEntity.canCastShadow ?? false);
@@ -76,10 +75,6 @@ export class ShapeEntityController extends EntityController {
     public onStart(): void {
         this._shapeComponent?.load(this._shapeEntity);
         super.onStart();
-        if (this._shapeComponent) {
-            const vscene = Renderer.getScene();
-            vscene.handleShapeComponentShadows(this._shapeComponent, this._shapeEntity.canCastShadow ?? false);
-        }
     }
 
 }

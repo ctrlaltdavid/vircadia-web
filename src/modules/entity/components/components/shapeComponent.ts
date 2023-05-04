@@ -12,6 +12,7 @@
 
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { StandardMaterial, Mesh, MeshBuilder, PhysicsImpostor } from "@babylonjs/core";
+import { Observable } from "@babylonjs/core/Misc/observable";
 import { IShapeEntity } from "../../EntityInterfaces";
 import { EntityMapper } from "../../package";
 
@@ -20,12 +21,18 @@ import { EntityMapper } from "../../package";
 
 export class ShapeComponent extends MeshComponent {
 
-    public get componentType():string {
+    private _onLoadedObservable: Observable<ShapeComponent> = new Observable<ShapeComponent>();
+
+    public get componentType(): string {
         return ShapeComponent.typeName;
     }
 
     static get typeName(): string {
         return "Shape";
+    }
+
+    public get onLoadedObservable(): Observable<ShapeComponent> {
+        return this._onLoadedObservable;
     }
 
     public load(entity: IShapeEntity) : void {
@@ -57,6 +64,8 @@ export class ShapeComponent extends MeshComponent {
             this.updateDimensions(entity);
             this.updateColor(entity);
             this.updateCollisionProperties(entity);
+
+            this._onLoadedObservable.notifyObservers(this);
         }
     }
 
