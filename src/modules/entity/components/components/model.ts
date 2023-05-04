@@ -15,6 +15,7 @@
 
 import { MeshComponent, DEFAULT_MESH_RENDER_GROUP_ID } from "@Modules/object";
 import { SceneLoader, PhysicsImpostor, AbstractMesh, TransformNode, Node } from "@babylonjs/core";
+import { Observable } from "@babylonjs/core/Misc/observable";
 import { IModelEntity } from "../../EntityInterfaces";
 import { ShapeType } from "../../EntityProperties";
 import { NametagEntity } from "@Modules/entity/entities";
@@ -30,6 +31,7 @@ const InteractiveModelTypes = [
 export class ModelComponent extends MeshComponent {
 
     private _modelURL = "";
+    private _onLoadedObservable: Observable<ModelComponent> = new Observable<ModelComponent>();
 
     public get componentType(): string {
         return ModelComponent.typeName;
@@ -37,6 +39,10 @@ export class ModelComponent extends MeshComponent {
 
     static get typeName(): string {
         return "Model";
+    }
+
+    public get onLoadedObservable(): Observable<ModelComponent> {
+        return this._onLoadedObservable;
     }
 
     public load(entity: IModelEntity): void {
@@ -66,6 +72,9 @@ export class ModelComponent extends MeshComponent {
                 const meshes = result.meshes;
                 this.mesh = meshes[0];
                 this.renderGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
+                for (const mesh of meshes) {
+                    mesh.receiveShadows = true;
+                }
 
                 // Add a nametag to any of the model's children if they match any of the InteractiveModelTypes.
                 const defaultNametagHeight = 0.6;
@@ -133,6 +142,8 @@ export class ModelComponent extends MeshComponent {
 
                 this.updateCollisionProperties(entity);
                 this.updatePhysicsProperties(entity);
+
+                this._onLoadedObservable.notifyObservers(this);
             })
             // eslint-disable-next-line @typescript-eslint/dot-notation
             .catch((err) => {

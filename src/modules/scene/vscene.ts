@@ -26,7 +26,7 @@ import { GameObject, MeshComponent, CapsuleColliderComponent,
 import { ScriptComponent, requireScript, requireScripts, reattachScript } from "@Modules/script";
 import { InputController, MyAvatarController, ScriptAvatarController, AvatarMapper } from "@Modules/avatar";
 import { IEntity, IEntityDescription, EntityBuilder, EntityEvent } from "@Modules/entity";
-import { ShapeComponent } from "@Modules/entity/components/components";
+import { ModelComponent, ShapeComponent } from "@Modules/entity/components/components";
 import { NametagEntity } from "@Modules/entity/entities";
 import { ScriptAvatar, Uuid } from "@vircadia/web-sdk";
 import { Utility } from "@Modules/utility";
@@ -348,6 +348,43 @@ export class VScene {
 
     // TODO
     // public deleteShapeComponentShadows(id: string): void
+
+    public handleModelComponentShadows(modelComponent: ModelComponent, canCastShadow: boolean): void {
+            modelComponent.gameObject?.name, canCastShadow, modelComponent);
+        const id = modelComponent.gameObject?.id;
+        if (id) {
+
+            // If shadow casters already contains the model component.
+            if (this._shadowCasters.has(id)) {
+                // If don't cast shadows or the shadow caster is different from the old one.
+                const shadowCaster = modelComponent.mesh;
+                const oldShadowCaster = this._shadowCasters.get(id) as AbstractMesh;
+                if (!canCastShadow || oldShadowCaster.uniqueId !== shadowCaster?.uniqueId) {
+                    // Remove the old shadow caster from the shadow generators.
+                    for (const shadowGenerator of this._shadowGenerators.values()) {
+                        shadowGenerator.removeShadowCaster(oldShadowCaster);
+                    }
+                    // eslint-disable-next-line @typescript-eslint/dot-notation
+                    this._shadowCasters.delete(id);
+                }
+            }
+
+            // If do cast shadows and the shadow caster is not already known.
+            if (canCastShadow && !this._shadowCasters.has(id)) {
+                const shadowCaster = modelComponent.mesh;
+                if (shadowCaster) {
+                    // Add the new shadow caster to the shadow generators.
+                    this._shadowCasters.set(id, shadowCaster);
+                    for (const shadowGenerator of this._shadowGenerators.values()) {
+                        shadowGenerator.addShadowCaster(shadowCaster, true);
+                    }
+                }
+            }
+        }
+    }
+
+    // TODO
+    // public deleteModelComponentShadows(id: string): void
 
 
     /**

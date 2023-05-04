@@ -11,6 +11,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // Domain Modules
+import { Renderer } from "@Modules/scene";
 import { EntityController } from "./EntityController";
 import { IModelEntity } from "../../EntityInterfaces";
 import { ModelComponent } from "../../components";
@@ -48,6 +49,18 @@ export class ModelEntityController extends EntityController {
 
         this._modelEntity.onModelURLChanged?.add(() => {
             this._modelComponent?.load(this._modelEntity);
+        });
+        this._modelComponent.onLoadedObservable.add(() => {
+            if (this._modelComponent) {
+                const vscene = Renderer.getScene();
+                vscene.handleModelComponentShadows(this._modelComponent, this._modelEntity.canCastShadow ?? false);
+            }
+        });
+        this._modelEntity.onCommonPropertiesChanged?.add(() => {
+            if (this._modelComponent) {
+                const vscene = Renderer.getScene();
+                vscene.handleModelComponentShadows(this._modelComponent, this._modelEntity.canCastShadow ?? false);
+            }
         });
         this._modelEntity.onCollisionPropertiesChanged?.add(() => {
             this._modelComponent?.updateCollisionProperties(this._modelEntity);
