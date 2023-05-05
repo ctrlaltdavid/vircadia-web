@@ -54,6 +54,8 @@ export class KeyLightComponent extends GenericNodeComponent<DirectionalLight> {
             }
 
             if (props.shadowMaxDistance) {
+                // The light is at the center of the Zone so make shadowMinZ extend the same distance in the other direction.
+                light.shadowMinZ = -props.shadowMaxDistance;
                 light.shadowMaxZ = props.shadowMaxDistance;
             }
         }
