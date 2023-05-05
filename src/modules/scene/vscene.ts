@@ -386,6 +386,45 @@ export class VScene {
     // TODO
     // public deleteModelComponentShadows(id: string): void
 
+    public handleMeshComponentShadows(id: string, meshComponent: MeshComponent, canCastShadow: boolean): void {
+        const shadowCaster = meshComponent.mesh;
+        if (!shadowCaster) {
+            return;
+        }
+
+        const shadowCasterMeshes = shadowCaster.getChildMeshes(false);
+
+        // If shadow casters already contains the game object.
+        if (this._shadowCasters.has(id)) {
+            // If don't cast shadows or the shadow caster is different from the old one.
+            const oldShadowCaster = this._shadowCasters.get(id) as AbstractMesh;
+            if (!canCastShadow || oldShadowCaster.uniqueId !== shadowCaster.uniqueId) {
+                // Remove the old shadow caster from the shadow generators.
+                for (const shadowGenerator of this._shadowGenerators.values()) {
+                    for (const shadowCasterMesh of shadowCasterMeshes) {
+                        shadowGenerator.removeShadowCaster(shadowCasterMesh);
+                    }
+                }
+                // eslint-disable-next-line @typescript-eslint/dot-notation
+                this._shadowCasters.delete(id);
+            }
+        }
+
+        // If do cast shadows and the shadow caster is not already known.
+        if (canCastShadow && !this._shadowCasters.has(id)) {
+            // Add the new shadow caster to the shadow generators.
+            this._shadowCasters.set(id, shadowCaster);
+            for (const shadowGenerator of this._shadowGenerators.values()) {
+                for (const shadowCasterMesh of shadowCasterMeshes) {
+                    shadowGenerator.addShadowCaster(shadowCasterMesh, true);
+                }
+            }
+        }
+    }
+
+    // TODO
+    // public deleteMeshComponentShadows(id: string): void
+
 
     /**
      * Load an avatar model for the current player.
@@ -439,6 +478,12 @@ export class VScene {
                 boundingVectors = boundingMesh.getHierarchyBoundingVectors();
                 meshComponent.mesh.position = Vector3.Zero();
                 this._myAvatar.addComponent(meshComponent);
+                for (const descendent of meshComponent.mesh.getDescendants(false)) {
+                    if (descendent instanceof AbstractMesh) {
+                        descendent.receiveShadows = true;
+                    }
+                }
+                this.handleAvatarShadows(this._myAvatar.id, meshComponent, true);
             }
             const avatarHeight = boundingVectors.max.y - boundingVectors.min.y;
 
