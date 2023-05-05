@@ -483,7 +483,7 @@ export class VScene {
                         descendent.receiveShadows = true;
                     }
                 }
-                this.handleAvatarShadows(this._myAvatar.id, meshComponent, true);
+                this.handleMeshComponentShadows(this._myAvatar.id, meshComponent, true);
             }
             const avatarHeight = boundingVectors.max.y - boundingVectors.min.y;
 
@@ -610,6 +610,13 @@ export class VScene {
             }
             avatar.addComponent(meshComponent);
             avatar.addComponent(new ScriptAvatarController(domain));
+
+            for (const descendent of meshComponent.mesh.getDescendants(false)) {
+                if (descendent instanceof AbstractMesh) {
+                    descendent.receiveShadows = true;
+                }
+            }
+            this.handleMeshComponentShadows(avatar.id, meshComponent, true);
 
             this._avatarList.set(stringId, avatar);
 
