@@ -1,6 +1,6 @@
 /* eslint-disable class-methods-use-this */
 //
-//  KeyLigth.ts
+//  KeyLight.ts
 //
 //  Created by Nolan Huang on 27 Jul 2022.
 //  Copyright 2022 Vircadia contributors.
@@ -51,10 +51,6 @@ export class KeyLightComponent extends GenericNodeComponent<DirectionalLight> {
 
             if (props.castShadows !== undefined) {
                 light.shadowEnabled = props.castShadows;
-            }
-
-            if (props.shadowBias) {
-                light.shadowMinZ = props.shadowBias;
             }
 
             if (props.shadowMaxDistance) {
