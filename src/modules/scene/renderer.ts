@@ -34,6 +34,8 @@ export const Renderer = {
     // eslint-disable-next-line @typescript-eslint/require-await
     async initialize(pCanvas: HTMLCanvasElement, pLoadingScreen: HTMLElement): Promise<void> {
         this._webgpuSupported = await WebGPUEngine.IsSupportedAsync;
+        // FIXME: Temporarily disable WebGPU on MacOS until update to a Babylon version that supports it.
+        this._webgpuSupported = false;
         if (this._webgpuSupported) {
 
             Renderer._engine = new WebGPUEngine(pCanvas, {
