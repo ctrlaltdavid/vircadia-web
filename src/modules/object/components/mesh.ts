@@ -64,6 +64,16 @@ export class MeshComponent extends GenericNodeComponent<AbstractMesh> {
         }
     }
 
+    public set receiveShadows(enable: boolean) {
+        if (this._mesh) {
+            this._mesh.receiveShadows = enable;
+            const subMeshes = this._mesh.getChildMeshes(false);
+            subMeshes.forEach((subMesh) => {
+                subMesh.receiveShadows = enable;
+            });
+        }
+    }
+
     public set pickable(enable: boolean) {
         if (this._mesh) {
             this._mesh.isPickable = enable;

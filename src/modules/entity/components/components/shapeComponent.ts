@@ -54,11 +54,11 @@ export class ShapeComponent extends MeshComponent {
             mesh.isPickable = false;
             mesh.checkCollisions = false;
             mesh.renderingGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
-            mesh.receiveShadows = true;
 
             this.mesh = mesh;
             if (entity.visible !== undefined) {
                 this.visible = entity.visible;
+                this.receiveShadows = entity.visible;
             }
 
             this.updateDimensions(entity);
@@ -66,6 +66,12 @@ export class ShapeComponent extends MeshComponent {
             this.updateCollisionProperties(entity);
 
             this._onLoadedObservable.notifyObservers(this);
+        }
+    }
+
+    public updateCommonProperties(entity: IShapeEntity): void {
+        if (entity.visible !== undefined) {
+            this.receiveShadows = entity.visible;
         }
     }
 

@@ -48,14 +48,17 @@ export class ShapeEntityController extends EntityController {
         this._shapeComponent.onLoadedObservable.add(() => {
             if (this._shapeComponent) {
                 const vscene = Renderer.getScene();
-                vscene.handleShapeComponentShadows(this._shapeComponent, this._shapeEntity.canCastShadow ?? false);
+                vscene.handleShapeComponentShadows(this._shapeComponent,
+                    (this._shapeEntity.visible && this._shapeEntity.canCastShadow) ?? false);
             }
         });
 
         this._shapeEntity.onCommonPropertiesChanged?.add(() => {
             if (this._shapeComponent) {
+                this._shapeComponent.updateCommonProperties(this._shapeEntity);
                 const vscene = Renderer.getScene();
-                vscene.handleShapeComponentShadows(this._shapeComponent, this._shapeEntity.canCastShadow ?? false);
+                vscene.handleShapeComponentShadows(this._shapeComponent,
+                    (this._shapeEntity.visible && this._shapeEntity.canCastShadow) ?? false);
             }
         });
 

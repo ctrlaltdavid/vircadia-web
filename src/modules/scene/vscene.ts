@@ -292,7 +292,7 @@ export class VScene {
     public handleDirectionalLightShadows(id: string, light: DirectionalLight): void {
         if (light.shadowEnabled && !this._shadowGenerators.has(id)) {
             // Add a new shadow generator.
-            const shadowGenerator = new ShadowGenerator(1024, light);
+            const shadowGenerator = new ShadowGenerator(2048, light);
             this._shadowGenerators.set(id, shadowGenerator);
             for (const [casterID, shadowCaster] of this._shadowCasters) {
                 shadowGenerator.addShadowCaster(shadowCaster, true);
@@ -350,7 +350,6 @@ export class VScene {
     // public deleteShapeComponentShadows(id: string): void
 
     public handleModelComponentShadows(modelComponent: ModelComponent, canCastShadow: boolean): void {
-            modelComponent.gameObject?.name, canCastShadow, modelComponent);
         const id = modelComponent.gameObject?.id;
         if (id) {
 

@@ -72,8 +72,13 @@ export class ModelComponent extends MeshComponent {
                 const meshes = result.meshes;
                 this.mesh = meshes[0];
                 this.renderGroupId = DEFAULT_MESH_RENDER_GROUP_ID;
-                for (const mesh of meshes) {
-                    mesh.receiveShadows = true;
+
+                if (entity.visible) {
+                    for (const mesh of meshes) {
+                        if (!mesh.isAnInstance) {
+                            mesh.receiveShadows = true;
+                        }
+                    }
                 }
 
                 // Add a nametag to any of the model's children if they match any of the InteractiveModelTypes.
@@ -153,10 +158,16 @@ export class ModelComponent extends MeshComponent {
             });
     }
 
+    public updateCommonProperties(entity: IModelEntity): void {
+        if (entity.visible !== undefined) {
+            this.receiveShadows = entity.visible;
+        }
+    }
+
     public updateAnimationProperties(entity: IModelEntity): void {
         if (this._animationGroups && this._animationGroups.length > 0) {
             const anim = this._animationGroups[0];
-            // stop all defaul animations
+            // stop all default animations
             anim.stop();
 
             if (entity.animation && entity.animation.running) {

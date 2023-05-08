@@ -53,13 +53,16 @@ export class ModelEntityController extends EntityController {
         this._modelComponent.onLoadedObservable.add(() => {
             if (this._modelComponent) {
                 const vscene = Renderer.getScene();
-                vscene.handleModelComponentShadows(this._modelComponent, this._modelEntity.canCastShadow ?? false);
+                vscene.handleModelComponentShadows(this._modelComponent,
+                    (this._modelEntity.visible && this._modelEntity.canCastShadow) ?? false);
             }
         });
         this._modelEntity.onCommonPropertiesChanged?.add(() => {
             if (this._modelComponent) {
+                this._modelComponent.updateCommonProperties(this._modelEntity);
                 const vscene = Renderer.getScene();
-                vscene.handleModelComponentShadows(this._modelComponent, this._modelEntity.canCastShadow ?? false);
+                vscene.handleModelComponentShadows(this._modelComponent,
+                    (this._modelEntity.visible && this._modelEntity.canCastShadow) ?? false);
             }
         });
         this._modelEntity.onCollisionPropertiesChanged?.add(() => {
