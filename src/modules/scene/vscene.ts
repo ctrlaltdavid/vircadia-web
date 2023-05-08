@@ -16,7 +16,7 @@
 import { AnimationGroup, Engine, Scene, Color3,
     ActionManager, ActionEvent, ExecuteCodeAction, ArcRotateCamera, Camera,
     Observable, Nullable, AmmoJSPlugin, Quaternion, Vector3, Color4, DefaultRenderingPipeline, ShadowGenerator,
-    AbstractMesh, DirectionalLight } from "@babylonjs/core";
+    CascadedShadowGenerator, AbstractMesh, DirectionalLight /* , CascadedShadowGenerator */ } from "@babylonjs/core";
 
 import "@babylonjs/loaders/glTF";
 import { ResourceManager } from "./resource";
@@ -294,8 +294,9 @@ export class VScene {
         const SHADOW_BIAS_SCALE = 0.01;  // Scale to match native client effect.
         if (light.shadowEnabled && !hasShadowGenerator) {
             // Add a new shadow generator.
-            const shadowGenerator = new ShadowGenerator(2048, light);
+            const shadowGenerator = new CascadedShadowGenerator(1024, light);
             shadowGenerator.bias = shadowBias * SHADOW_BIAS_SCALE;
+            shadowGenerator.autoCalcDepthBounds = true;
             this._shadowGenerators.set(id, shadowGenerator);
             for (const [casterID, shadowCaster] of this._shadowCasters) {
                 shadowGenerator.addShadowCaster(shadowCaster, true);
