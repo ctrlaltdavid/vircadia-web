@@ -202,7 +202,9 @@ export class ZoneEntityController extends EntityController {
         }
         if (this._keyLight && this._keyLight.gameObject && this._keyLight.node) {
             const vscene = Renderer.getScene();
-            vscene.handleDirectionalLightShadows(this._keyLight.gameObject.id, this._keyLight.node);
+            const DEFAULT_SHADOW_BIAS = 0.005;  // Native client default * SHADOW_BIAS_SCALE.
+            vscene.handleDirectionalLightShadows(this._keyLight.gameObject.id, this._keyLight.node,
+                this._zoneEntity.keyLight?.shadowBias ?? DEFAULT_SHADOW_BIAS);
         }
     }
 

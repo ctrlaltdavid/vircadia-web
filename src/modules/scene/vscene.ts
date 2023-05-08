@@ -288,16 +288,19 @@ export class VScene {
     }
 
 
-    // Adds and removes shadow generators per new and modified DirectionalLight.
-    public handleDirectionalLightShadows(id: string, light: DirectionalLight): void {
-        if (light.shadowEnabled && !this._shadowGenerators.has(id)) {
+    // Adds, updates, and removes shadow generators per new and modified DirectionalLight.
+    public handleDirectionalLightShadows(id: string, light: DirectionalLight, shadowBias: number): void {
+        const hasShadowGenerator = this._shadowGenerators.has(id);
+        const SHADOW_BIAS_SCALE = 0.01;  // Scale to match native client effect.
+        if (light.shadowEnabled && !hasShadowGenerator) {
             // Add a new shadow generator.
             const shadowGenerator = new ShadowGenerator(2048, light);
+            shadowGenerator.bias = shadowBias * SHADOW_BIAS_SCALE;
             this._shadowGenerators.set(id, shadowGenerator);
             for (const [casterID, shadowCaster] of this._shadowCasters) {
                 shadowGenerator.addShadowCaster(shadowCaster, true);
             }
-        } else if (!light.shadowEnabled && this._shadowGenerators.has(id)) {
+        } else if (!light.shadowEnabled && hasShadowGenerator) {
             // Remove an existing shadow generator.
             const shadowGenerator = this._shadowGenerators.get(id) as ShadowGenerator;
             for (const shadowCaster of this._shadowCasters.values()) {
@@ -306,6 +309,10 @@ export class VScene {
             shadowGenerator.dispose();
             // eslint-disable-next-line @typescript-eslint/dot-notation
             this._shadowGenerators.delete(id);
+        } else if (hasShadowGenerator) {
+            // Update existing shadow generator.
+            const shadowGenerator = this._shadowGenerators.get(id) as ShadowGenerator;
+            shadowGenerator.bias = shadowBias * SHADOW_BIAS_SCALE;
         }
     }
 
